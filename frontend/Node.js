@@ -213,7 +213,7 @@ class Node extends React.Component<PropsType, StateType> {
     }
 
     const collapsed = node.get('collapsed');
-    const inverted = false; // selected && isWindowFocused;
+    const inverted = selected && isWindowFocused && theme.hasInvert;
 
     const headWrapperStyle = wrapperStyle(depth, inverted && !isBottomTagSelected, theme);
 
@@ -343,7 +343,9 @@ class Node extends React.Component<PropsType, StateType> {
     const headInverted = inverted && (!isBottomTagSelected || collapsed);
 
     const jsxOpenTagStyle = jsxTagStyle(inverted && (!isBottomTagSelected || collapsed), nodeType, theme);
-    const arrowColor=isBright(theme.base00)?'rgba(0,0,0,.2)':'rgba(255,255,255,.2)';
+    const arrowColor=headInverted
+        ? theme.state02
+        : isBright(theme.base00) ? 'rgba(0,0,0,.2)' : 'rgba(255,255,255,.5)';
     const head = (
       <div style={sharedHeadStyle} {...headEvents}>
         <span
@@ -498,7 +500,7 @@ const headStyle = ({
     backgroundColor = theme.state03;
   }
 
-  const isInverted = false; // isSelected && isWindowFocused && (isCollapsed || !isBottomTagSelected);
+  const isInverted = isSelected && isWindowFocused && (isCollapsed || !isBottomTagSelected) && theme.hasInvert;
   const color = isInverted ? theme.state02 : undefined;
 
   return {
@@ -576,7 +578,7 @@ const tailStyle = ({
     backgroundColor = theme.state03;
   }
 
-  const isInverted = false; // isSelected && isWindowFocused && isBottomTagSelected;
+  const isInverted = isSelected && isWindowFocused && isBottomTagSelected && theme.hasInvert;
   const color = isInverted ? theme.state02 : theme.base04;
 
   return {

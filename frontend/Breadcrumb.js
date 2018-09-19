@@ -129,7 +129,9 @@ const containerStyle = (theme: Theme) => ({
 
 const itemStyle = (isSelected: boolean, nodeType: string, theme: Theme) => {
   let color;
-  if (nodeType === 'Special') {
+  if (isSelected&&theme.hasInvert) {
+    color=theme.state02;
+  } else if (nodeType === 'Special') {
     color = theme.special01;
   } else if (nodeType === 'Composite') {
     color = theme.special05;
