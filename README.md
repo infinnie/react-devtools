@@ -46,6 +46,9 @@ A quick way to bring up the DevTools is to right-click on the page and press Ins
 
 ![](/images/devtools-side-pane.gif)
 
+### Alternate theme
+![](/images/react-devtools-plain.png)
+
 ### Search Bar
 
 - Use the search bar to find components by name
