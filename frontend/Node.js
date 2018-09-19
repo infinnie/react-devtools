@@ -16,7 +16,7 @@ const nullthrows = require('nullthrows').default;
 
 const decorate = require('./decorate');
 const Props = require('./Props');
-const {getInvertedWeak, hexToRgba} = require('./Themes/utils');
+const {getInvertedWeak, hexToRgba, isBright} = require('./Themes/utils');
 
 import type {Map} from 'immutable';
 import type {Theme} from './types';
@@ -213,7 +213,7 @@ class Node extends React.Component<PropsType, StateType> {
     }
 
     const collapsed = node.get('collapsed');
-    const inverted = selected && isWindowFocused;
+    const inverted = false; // selected && isWindowFocused;
 
     const headWrapperStyle = wrapperStyle(depth, inverted && !isBottomTagSelected, theme);
 
@@ -292,7 +292,7 @@ class Node extends React.Component<PropsType, StateType> {
     }
 
     const dollarRStyle = {
-      color: isWindowFocused ? getInvertedWeak(theme.state02) : 'inherit',
+      color: 'inherit',
     };
 
     // Single-line tag (collapsed / simple content / no content)
@@ -343,18 +343,24 @@ class Node extends React.Component<PropsType, StateType> {
     const headInverted = inverted && (!isBottomTagSelected || collapsed);
 
     const jsxOpenTagStyle = jsxTagStyle(inverted && (!isBottomTagSelected || collapsed), nodeType, theme);
+    const arrowColor=isBright(theme.base00)?'rgba(0,0,0,.2)':'rgba(255,255,255,.2)';
     const head = (
       <div style={sharedHeadStyle} {...headEvents}>
         <span
           onClick={onToggleCollapse}
           style={{
-            width: '1rem',
-            textAlign: 'center',
-            marginLeft: '-1rem',
+            borderColor: collapsed?'transparent transparent transparent '+arrowColor:arrowColor+' transparent transparent',
+            borderStyle: 'solid',
+            borderWidth: '.35rem',
+            display: 'inline-block',
+            margin:collapsed?'.4rem .3rem 0':'.5rem .25rem 0',
+            width:0,
+            height:0,
+            position:'absolute',
+            left:0,
+            top:0,
           }}
-        >
-          {collapsed ? '▶' : '▼'}
-        </span>
+        />
         &lt;
         <span ref={this._setHeadRef} style={jsxOpenTagStyle}>{name}</span>
         {node.get('key') &&
@@ -492,7 +498,7 @@ const headStyle = ({
     backgroundColor = theme.state03;
   }
 
-  const isInverted = isSelected && isWindowFocused && (isCollapsed || !isBottomTagSelected);
+  const isInverted = false; // isSelected && isWindowFocused && (isCollapsed || !isBottomTagSelected);
   const color = isInverted ? theme.state02 : undefined;
 
   return {
@@ -529,7 +535,7 @@ const jsxTagStyle = (inverted: boolean, nodeType: string, theme: Theme) => {
 
 const tagTextStyle = (inverted: boolean, theme: Theme) => ({
   flex: 1,
-  color: inverted ? getInvertedWeak(theme.state02) : theme.special06,
+  color: inverted ? getInvertedWeak(theme.state02) : theme.special00,
 });
 
 const wrapperStyle = (depth: number, inverted: boolean, theme: Theme) => ({
@@ -570,7 +576,7 @@ const tailStyle = ({
     backgroundColor = theme.state03;
   }
 
-  const isInverted = isSelected && isWindowFocused && isBottomTagSelected;
+  const isInverted = false; // isSelected && isWindowFocused && isBottomTagSelected;
   const color = isInverted ? theme.state02 : theme.base04;
 
   return {

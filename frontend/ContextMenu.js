@@ -164,16 +164,17 @@ const containerStyle = (xPos: number, yPos: number, theme: Theme) => ({
   listStyle: 'none',
   margin: 0,
   padding: '0.25rem 0',
-  fontSize: sansSerif.sizes.large,
+  fontSize: sansSerif.sizes.normal,
   fontFamily: sansSerif.family,
-  borderRadius: '0.25rem',
+  borderRadius: '0.2rem',
   overflow: 'hidden',
   zIndex: 1,
-  backgroundColor: theme.base01,
+  backgroundColor: theme.base00,
+  boxShadow:'0 6px 20px rgba(0,0,0,.1),0 0 8px rgba(0,0,0,.08)',
 });
 
 const emptyStyle = (theme: Theme) => ({
-  padding: '0.25rem 0.5rem',
+  padding: '0.35rem .75rem',
   color: theme.base03,
 });
 
@@ -196,7 +197,7 @@ var styles = {
   },
 
   highlightHoverItem: {
-    padding: '0.25rem 0.5rem',
+    padding: '0.35rem .75rem',
     cursor: 'default',
     WebkitUserSelect: 'none',
     MozUserSelect: 'none',

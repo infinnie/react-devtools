@@ -287,7 +287,7 @@ class DataItem extends React.Component<Props, State> {
                 this.props.showMenu(e, this.props.value, this.props.path, name);
               }
             }}
-            style={previewStyle(theme)}
+            style={previewStyle(theme, this.props.value===null? 'null' :typeof this.props.value)}
           >
             {preview}
           </div>
@@ -319,13 +319,22 @@ const nameStyle = (isComplex: boolean, theme: Theme) => ({
   margin: '0 0.25rem',
 });
 
-const previewStyle = (theme: Theme) => ({
-  display: 'flex',
-  whiteSpace: 'pre',
-  wordBreak: 'break-word',
-  flex: 1,
-  color: theme.special01,
-});
+const previewStyle = (theme: Theme, type: string) => {
+  var colorLookUp={
+    number:'special01',
+    boolean:'special02',
+    string:'special00',
+    undefined:'base05',
+    null:'special02',
+  };
+  return ({
+    display: 'flex',
+    whiteSpace: 'pre',
+    wordBreak: 'break-word',
+    flex: 1,
+    color: theme[colorLookUp[type]||'special01'],
+  });
+};
 
 const emptyStyle = (theme: Theme) => ({
   lineHeight: '1.25rem',

@@ -72,12 +72,12 @@ const tabsStyle = (theme: Theme) => ({
 const tabStyle = (isSelected: boolean, theme: Theme) => {
   return {
     padding: '0.25rem 0.75rem',
-    lineHeight: '15px',
+    lineHeight: 1.2,
     fontSize: sansSerif.sizes.normal,
     fontFamily: sansSerif.family,
     cursor: 'pointer',
     borderTop: '1px solid transparent',
-    borderBottom: isSelected ? `2px solid ${theme.state00}` : 'none',
+    borderBottom: isSelected ? `2px solid ${theme.state06}` : 'none',
     marginBottom: isSelected ? '-1px' : '1px',
   };
 };

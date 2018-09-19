@@ -14,16 +14,16 @@ module.exports = {
   monospace: {
     family: 'Menlo, Consolas, monospace',
     sizes: {
-      normal: 11,
-      large: 14,
+      normal: 14,
+      large: 16,
     },
   },
   sansSerif: {
-    family: '"Helvetica Neue", "Lucida Grande", -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, sans-serif',
+    family: '"Segoe UI", sans-serif',
     sizes: {
-      small: 10,
-      normal: 12,
-      large: 14,
+      small: 12,
+      normal: 14,
+      large: 16,
     },
   },
 };

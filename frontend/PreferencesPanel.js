@@ -103,6 +103,7 @@ class PreferencesPanel extends React.Component<Props, State> {
               onKeyUp={this._onKeyUp}
               ref={this._setSelectRef}
               value={themeName}
+              style={{fontFamily:sansSerif.family, fontSize:sansSerif.sizes.normal}}
             >
               {browserName && (<option value="">{browserName}</option>)}
               {hasCustomTheme && (<option value={CUSTOM_THEME_NAME}>Custom</option>)}
@@ -266,7 +267,9 @@ const styles = {
   button: {
     marginTop: '0.5rem',
     marginRight: '0.25rem',
-    padding: '0.25rem',
+    padding: '0.25rem 0.75rem',
+    fontFamily:sansSerif.family,
+    fontSize:'100%',
   },
   preference: {
     margin: '0 0 0.5rem',
