@@ -18,7 +18,7 @@ const {sansSerif} = require('./Themes/Fonts');
 import type {Theme} from './types';
 
 type Props = {
-  tabs: {[key: string]: () => React.Node},
+  tabs: { [key: string]: () => React.Node },
   selected: string,
   setSelectedTab: (name: string) => void,
 };
@@ -77,13 +77,13 @@ const tabStyle = (isSelected: boolean, theme: Theme) => {
     fontFamily: sansSerif.family,
     cursor: 'pointer',
     borderTop: '1px solid transparent',
-    borderBottom: isSelected ? `2px solid ${theme.state06}` : 'none',
+    borderBottom: isSelected ? `2px solid ${ theme.hasInvert? theme.state00 : theme.special05 }` : 'none',
     marginBottom: isSelected ? '-1px' : '1px',
   };
 };
 
 var styles = {
-  container:{
+  container: {
     flex: 1,
     display: 'flex',
     flexDirection: 'column',

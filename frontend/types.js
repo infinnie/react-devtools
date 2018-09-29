@@ -85,6 +85,8 @@ export type Theme = {
 
   hidden?: boolean; // Special theme (eg Chrome or Firefox default) hidden from user in prefs panel
 
+  hasInvert?: boolean;
+
   /**
    * Base colors should increase in light-to-dark (or dark-to-light) order.
    * This is important for legibility/contrast because of how the colors are used.

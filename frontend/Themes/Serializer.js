@@ -51,7 +51,7 @@ function deserialize(string: string, fallbackTheme: Theme = ChromeDefault): Them
 }
 
 function isColorSet(maybeColor: any): boolean {
-  return typeof maybeColor === 'string' && maybeColor !== '';
+  return typeof maybeColor==='boolean' || typeof maybeColor === 'string' && maybeColor !== '';
 }
 
 function serialize(theme: Theme): string {

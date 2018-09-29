@@ -108,6 +108,7 @@ class Editor extends React.Component<Props, State> {
               />
             ))}
           </div>
+
           <div style={previewWrapperStyle(this._customTheme)}>
             <Preview
               key={updateCounter}
@@ -117,6 +118,7 @@ class Editor extends React.Component<Props, State> {
         </div>
 
         <div style={styles.bottomRow}>
+
           <div style={styles.buttons}>
             <button onClick={hide}>
               Cancel
@@ -125,6 +127,13 @@ class Editor extends React.Component<Props, State> {
             </button> <button onClick={this._save}>
               Save
             </button>
+            <label style={{display:'inline-block', margin:'0 .25em'}}>
+              <input type="checkbox" checked={this._customTheme.hasInvert} onChange={(e) => {
+                this._customTheme.hasInvert=e.target.checked;
+                this._udpatePreview();
+              }} style={{verticalAlign:'middle', margin:'0 .25em 2px'}} />
+              Invert color on selection
+            </label>
           </div>
 
           <div style={styles.importExportRow}>

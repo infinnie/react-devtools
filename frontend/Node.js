@@ -353,9 +353,8 @@ class Node extends React.Component<PropsType, StateType> {
           style={{
             borderColor: collapsed?'transparent transparent transparent '+arrowColor:arrowColor+' transparent transparent',
             borderStyle: 'solid',
-            borderWidth: '.35rem',
-            display: 'inline-block',
-            margin:collapsed?'.4rem .3rem 0':'.5rem .25rem 0',
+            borderWidth: '5px',
+            margin:collapsed?'6px 4px 0':'9px 3px 0',
             width:0,
             height:0,
             position:'absolute',

@@ -420,13 +420,15 @@ const RecordingInProgress = ({stopRecording, theme}) => (
       onClick={stopRecording}
       style={{
         display: 'flex',
-        background: theme.state00,
+        background: theme.hasInvert? theme.state00 : theme.special05,
         border: 'none',
         outline: 'none',
         cursor: 'pointer',
         color: theme.base00,
         padding: '.5rem 0.75rem',
         marginTop: '0.5rem',
+        fontFamily: sansSerif.family,
+        fontSize: sansSerif.sizes.normal,
       }}
       title="Stop recording"
     >
