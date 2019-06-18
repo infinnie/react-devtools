@@ -213,6 +213,9 @@ function attachRendererFiber(hook: Hook, rid: string, renderer: ReactRenderer): 
 
         // TODO (bvaughn) we plan to remove this prefix anyway.
         // We can cut this special case out when it's gone.
+        if (name == null) {
+          name = 'ThisWasNullOrUndefined';
+        }
         name = name.replace('topsecret-', '');
 
         publicInstance = fiber.stateNode;
@@ -225,7 +228,7 @@ function attachRendererFiber(hook: Hook, rid: string, renderer: ReactRenderer): 
         } else {
           children = [];
         }
-        if (typeof fiber.stateNode.setNativeProps === 'function') {
+        if (fiber.stateNode && typeof fiber.stateNode.setNativeProps === 'function') {
           // For editing styles in RN
           updater = {
             setNativeProps(nativeProps) {

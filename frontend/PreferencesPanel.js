@@ -52,6 +52,7 @@ class PreferencesPanel extends React.Component<Props, State> {
 
     this.state = {
       editMode: false,
+      showing: false,
     };
   }
 
@@ -64,6 +65,9 @@ class PreferencesPanel extends React.Component<Props, State> {
   componentDidUpdate(prevProps, prevState) {
     if (this.props.open && !prevProps.open) {
       this._selectRef.focus();
+      this.setState({
+        showing: true,
+      });
     }
   }
 
@@ -79,7 +83,7 @@ class PreferencesPanel extends React.Component<Props, State> {
     let content;
     if (editMode) {
       content = (
-        <ThemeEditor hide={this._hide} theme={theme} />
+        <ThemeEditor hide={this._hide} theme={theme}/>
       );
     } else {
       let themeNames = Object.keys(themes);
@@ -88,13 +92,13 @@ class PreferencesPanel extends React.Component<Props, State> {
       }
 
       content = (
-        <div style={panelStyle(theme)} onClick={blockClick}>
+        <div style={panelStyle(theme, this.state.showing)} onClick={blockClick}>
           <h4 style={styles.header}>Preferences</h4>
           <div style={styles.preference}>
-            <TraceUpdatesFrontendControl />
+            <TraceUpdatesFrontendControl/>
           </div>
           <div style={styles.preference}>
-            <ColorizerFrontendControl />
+            <ColorizerFrontendControl/>
           </div>
           <h4 style={styles.header}>Theme</h4>
           <div style={styles.selectAndPreviewRow}>
@@ -103,7 +107,7 @@ class PreferencesPanel extends React.Component<Props, State> {
               onKeyUp={this._onKeyUp}
               ref={this._setSelectRef}
               value={themeName}
-              style={{fontFamily:sansSerif.family, fontSize:sansSerif.sizes.normal}}
+              style={{fontFamily: sansSerif.family, fontSize: sansSerif.sizes.normal}}
             >
               {browserName && (<option value="">{browserName}</option>)}
               {hasCustomTheme && (<option value={CUSTOM_THEME_NAME}>Custom</option>)}
@@ -116,12 +120,12 @@ class PreferencesPanel extends React.Component<Props, State> {
               onClick={this._onEditCustomThemeClick}
               theme={theme}
             >
-              <EditIcon />
+              <EditIcon/>
             </EditButton>
           </div>
           <div style={styles.buttonBar}>
             <button
-              onClick={hide}
+              onClick={this.hideButton}
               style={styles.button}
             >
               Close
@@ -132,7 +136,7 @@ class PreferencesPanel extends React.Component<Props, State> {
     }
 
     return (
-      <div style={styles.backdrop} onClick={this._hide}>
+      <div style={getBackdropStyle(this.state.showing)} onClick={this._hide}>
         {content}
       </div>
     );
@@ -144,6 +148,13 @@ class PreferencesPanel extends React.Component<Props, State> {
     changeTheme(event.target.value);
   };
 
+  hideButton = () => {
+    this.setState({
+      showing: false,
+    });
+    setTimeout(this.props.hide, 330);
+  };
+
   _hide = () => {
     const {hide} = this.props;
     const {editMode} = this.state;
@@ -153,7 +164,10 @@ class PreferencesPanel extends React.Component<Props, State> {
         editMode: false,
       });
     } else {
-      hide();
+      this.setState({
+        showing: false,
+      });
+      setTimeout(hide, 330);
     }
   };
 
@@ -163,7 +177,7 @@ class PreferencesPanel extends React.Component<Props, State> {
     });
   };
 
-  _onKeyUp = ({ key }) => {
+  _onKeyUp = ({key}) => {
     if (key === 'Escape') {
       this.props.hide();
     }
@@ -189,7 +203,7 @@ PreferencesPanel.propTypes = {
 
 
 const EditButton = Hoverable(
-  ({ isHovered, onClick, onMouseEnter, onMouseLeave, theme }) => (
+  ({isHovered, onClick, onMouseEnter, onMouseLeave, theme}) => (
     <button
       onClick={onClick}
       onMouseEnter={onMouseEnter}
@@ -198,11 +212,11 @@ const EditButton = Hoverable(
     >
       <EditIcon/>
     </button>
-  )
+  ),
 );
 
 const EditIcon = () => (
-  <SvgIcon path={Icons.EDIT} />
+  <SvgIcon path={Icons.EDIT}/>
 );
 
 const blockClick = event => event.stopPropagation();
@@ -221,10 +235,10 @@ const WrappedPreferencesPanel = decorate({
   },
 }, PreferencesPanel);
 
-const panelStyle = (theme: Theme) => ({
+const panelStyle = (theme: Theme, show) => ({
   maxWidth: '100%',
   margin: '0.5rem',
-  padding: '0.5rem',
+  padding: '0.75rem',
   borderRadius: '0.25rem',
   display: 'flex',
   flexDirection: 'column',
@@ -234,6 +248,9 @@ const panelStyle = (theme: Theme) => ({
   backgroundColor: theme.base01,
   border: `1px solid ${theme.base03}`,
   color: theme.base05,
+  boxShadow: '0 6px 20px rgba(0,0,0,.1),0 0 8px rgba(0,0,0,.06)',
+  transition: '.3s',
+  transform: show ? 'none' : 'translate3d(0,-50vh,0) scale3d(0,0,1)',
 });
 
 const buttonStyle = (isHovered: boolean, theme: Theme) => ({
@@ -256,7 +273,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0)',
+    backgroundColor: 'rgba(0,0,0,.1)',
   },
   header: {
     margin: '0 0 0.5rem',
@@ -268,8 +285,8 @@ const styles = {
     marginTop: '0.5rem',
     marginRight: '0.25rem',
     padding: '0.25rem 0.75rem',
-    fontFamily:sansSerif.family,
-    fontSize:'100%',
+    fontFamily: sansSerif.family,
+    fontSize: '100%',
   },
   preference: {
     margin: '0 0 0.5rem',
@@ -280,6 +297,19 @@ const styles = {
     direction: 'row',
     alignItems: 'center',
   },
+};
+
+const getBackdropStyle = show => {
+  if (show) {
+    return Object.assign({}, styles.backdrop, {
+      opacity: 1,
+      transition: '.3s',
+    });
+  }
+  return Object.assign({}, styles.backdrop, {
+    opacity: 0,
+    transition: '.3s',
+  });
 };
 
 module.exports = WrappedPreferencesPanel;

@@ -24,12 +24,12 @@ function getDisplayName(type: Function, fallbackName: string = 'Unknown'): strin
   // The displayName property is not guaranteed to be a string.
   // It's only safe to use for our purposes if it's a string.
   // github.com/facebook/react-devtools/issues/803
-  if (typeof type.displayName === 'string') {
+  if (type && typeof type.displayName === 'string') {
     displayName = type.displayName;
   }
 
   if (!displayName) {
-    displayName = type.name || fallbackName;
+    displayName = type && type.name || fallbackName;
   }
 
   // Facebook-specific hack to turn "Image [from Image.react]" into just "Image".
@@ -48,7 +48,9 @@ function getDisplayName(type: Function, fallbackName: string = 'Unknown'): strin
     }
   }
 
-  cachedDisplayNames.set(type, displayName);
+  if (type) {
+    cachedDisplayNames.set(type, displayName);
+  }
   return displayName;
 }
 
