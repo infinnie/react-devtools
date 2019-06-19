@@ -11,7 +11,6 @@
 'use strict';
 
 import type {CacheDataForSnapshot, GetCachedDataForSnapshot, Snapshot} from '../ProfilerTypes';
-import type {Theme} from '../../../frontend/types';
 
 import memoize from 'memoize-one';
 import React, { PureComponent } from 'react';
@@ -19,7 +18,7 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList as List } from 'react-window';
 import ChartNode from './ChartNode';
 import NoSnapshotDataMessage from './NoSnapshotDataMessage';
-import { barHeight, getGradientColor, minBarWidth, scale } from './constants';
+import { barHeight, calculateSelfDuration, getGradientColor, minBarWidth, scale } from './constants';
 
 type Node = {|
   id: any,
@@ -40,7 +39,6 @@ type ItemData = {|
   scaleX: (value: number, fallbackValue: number) => number,
   selectFiber: SelectOrInspectFiber,
   snapshot: Snapshot,
-  theme: Theme,
   width: number,
 |};
 
@@ -54,7 +52,6 @@ type Props = {|
   showNativeNodes: boolean,
   snapshot: Snapshot,
   snapshotIndex: number,
-  theme: Theme,
 |};
 
 const SnapshotRanked = ({
@@ -67,7 +64,6 @@ const SnapshotRanked = ({
   showNativeNodes,
   snapshot,
   snapshotIndex,
-  theme,
 }: Props) => {
   // Cache data in ProfilerStore so we only have to compute it the first time a Snapshot is shown.
   const dataKey = showNativeNodes ? 'SnapshotRankedDataWithNativeNodes' : 'SnapshotRankedDataWithoutNativeNodes';
@@ -88,7 +84,6 @@ const SnapshotRanked = ({
           selectedFiberID={selectedFiberID}
           selectFiber={selectFiber}
           snapshot={snapshot}
-          theme={theme}
           width={width}
         />
       )}
@@ -109,7 +104,6 @@ type SnapshotRankedInnerProps = {|
   selectedFiberID: string | null,
   selectFiber: SelectOrInspectFiber,
   snapshot: Snapshot,
-  theme: Theme,
   width: number,
 |};
 
@@ -121,7 +115,6 @@ const SnapshotRankedInner = ({
   selectedFiberID,
   selectFiber,
   snapshot,
-  theme,
   width,
 }: SnapshotRankedInnerProps) => {
   // If a commit contains no fibers with an actualDuration > 0,
@@ -140,7 +133,6 @@ const SnapshotRankedInner = ({
     rankedData,
     selectFiber,
     snapshot,
-    theme,
     width,
   );
 
@@ -200,7 +192,6 @@ class ListItem extends PureComponent<any, void> {
         label={node.label}
         onClick={this.handleClick}
         onDoubleClick={this.handleDoubleClick}
-        theme={data.theme}
         title={node.title}
         width={Math.max(minBarWidth, scaleX(node.value, width))}
         x={0}
@@ -216,7 +207,6 @@ const getItemData = memoize((
   rankedData: RankedData,
   selectFiber: SelectOrInspectFiber,
   snapshot: Snapshot,
-  theme: Theme,
   width: number,
 ): ItemData => ({
   focusedNode: rankedData.nodes[focusedNodeIndex],
@@ -227,7 +217,6 @@ const getItemData = memoize((
   scaleX: scale(0, rankedData.nodes[focusedNodeIndex].value, 0, width),
   selectFiber,
   snapshot,
-  theme,
   width,
 }));
 
@@ -245,6 +234,8 @@ const getNodeIndex = memoize((rankedData: RankedData, id: string | null): number
 });
 
 const convertSnapshotToChartData = (snapshot: Snapshot, showNativeNodes: boolean): RankedData => {
+  let maxSelfDuration = 0;
+
   const nodes = snapshot.committedNodes
     .filter(nodeID => {
       const node = snapshot.nodes.get(nodeID);
@@ -252,21 +243,23 @@ const convertSnapshotToChartData = (snapshot: Snapshot, showNativeNodes: boolean
       return (nodeType === 'Composite' || (nodeType === 'Native' && showNativeNodes));
     })
     .map((nodeID, index) => {
-      const node = snapshot.nodes.get(nodeID).toJSON();
-      const name = node.name || 'Unknown';
+      const selfDuration = calculateSelfDuration(snapshot, nodeID);
+      maxSelfDuration = Math.max(maxSelfDuration, selfDuration);
 
+      const name = snapshot.nodes.getIn([nodeID, 'name']) || 'Unknown';
+      const label = `${name} (${selfDuration.toFixed(1)}ms)`;
       return {
-        id: node.id,
-        label: `${name} (${node.actualDuration.toFixed(1)}ms)`,
+        id: nodeID,
+        label,
         name,
-        title: `${name} (${node.actualDuration.toFixed(3)}ms)`,
-        value: node.actualDuration,
+        title: label,
+        value: selfDuration,
       };
     })
     .sort((a, b) => b.value - a.value);
 
   return {
-    maxValue: snapshot.duration,
+    maxValue: maxSelfDuration,
     nodes,
   };
 };

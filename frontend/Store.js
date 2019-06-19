@@ -20,9 +20,13 @@ var serializePropsForCopy = require('../utils/serializePropsForCopy');
 var invariant = require('./invariant');
 var SearchUtils = require('./SearchUtils');
 var ThemeStore = require('./Themes/Store');
+const {get, set} = require('../utils/storage');
+
+const LOCAL_STORAGE_TRACE_UPDATES_KEY = 'traceUpdates';
 
 import type Bridge from '../agent/Bridge';
-import type {ControlState, DOMEvent, ElementID, Theme} from './types';
+import type {InspectedHooks} from '../backend/types';
+import type {DOMEvent, ElementID, Theme} from './types';
 import type {Snapshot} from '../plugins/Profiler/ProfilerTypes';
 
 type ListenerFunction = () => void;
@@ -94,8 +98,9 @@ class Store extends EventEmitter {
 
   // Public state
   isInspectEnabled: boolean;
-  traceupdatesState: ?ControlState;
-  colorizerState: ?ControlState;
+  traceUpdates: boolean = false;
+  colorizer: boolean = false;
+  inspectedHooks: InspectedHooks | null = null;
   contextMenu: ?ContextMenu;
   hovered: ?ElementID;
   isBottomTagHovered: boolean;
@@ -107,6 +112,7 @@ class Store extends EventEmitter {
   searchText: string;
   selectedTab: string;
   selected: ?ElementID;
+  showCopyableInput: ?ElementID;
   themeStore: ThemeStore;
   breadcrumbHead: ?ElementID;
   snapshotQueue: Array<Snapshot> = [];
@@ -133,13 +139,12 @@ class Store extends EventEmitter {
     this.hovered = null;
     this.selected = null;
     this.selectedTab = 'Elements';
+    this.showCopyableInput = null;
     this.breadcrumbHead = null;
     this.isBottomTagHovered = false;
     this.isBottomTagSelected = false;
     this.searchText = '';
     this.capabilities = {};
-    this.traceupdatesState = null;
-    this.colorizerState = null;
     this.refreshSearch = false;
     this.themeStore = themeStore;
 
@@ -166,6 +171,7 @@ class Store extends EventEmitter {
     this._bridge.on('updateProfileTimes', (data) => this._updateComponentProfileTimes(data));
     this._bridge.on('unmount', id => this._unmountComponent(id));
     this._bridge.on('setInspectEnabled', (data) => this.setInspectEnabled(data));
+    this._bridge.on('inspectedHooks', data => this.setInspectedHooks(data));
     this._bridge.on('select', ({id, quiet, offsetFromLeaf = 0}) => {
       // Backtrack if we want to skip leaf nodes
       while (offsetFromLeaf > 0) {
@@ -312,7 +318,7 @@ class Store extends EventEmitter {
 
   highlight(id: string): void {
     // Individual highlighting is disabled while colorizer is active
-    if (!this.colorizerState || !this.colorizerState.enabled) {
+    if (!this.colorizer) {
       this._bridge.send('highlight', id);
     }
   }
@@ -322,7 +328,7 @@ class Store extends EventEmitter {
   }
 
   highlightSearch(): void {
-    if (this.colorizerState && this.colorizerState.enabled) {
+    if (this.colorizer) {
       this._bridge.send('hideHighlight');
       if (this.searchRoots) {
         this.highlightMany(this.searchRoots.toArray());
@@ -419,6 +425,11 @@ class Store extends EventEmitter {
     this._toggleDeepChildren(id, value);
   }
 
+  setShowCopyableInput(id: ElementID) {
+    this.showCopyableInput = id;
+    this.emit(id);
+  }
+
   setProps(id: ElementID, path: Array<string>, value: any) {
     this._bridge.send('setProps', {id, path, value});
   }
@@ -453,7 +464,7 @@ class Store extends EventEmitter {
   }
 
   hideHighlight() {
-    if (this.colorizerState && this.colorizerState.enabled) {
+    if (this.colorizer) {
       return;
     }
     this._bridge.send('hideHighlight');
@@ -485,6 +496,7 @@ class Store extends EventEmitter {
 
   select(id: ?ElementID, noHighlight?: boolean, keepBreadcrumb?: boolean) {
     var oldSel = this.selected;
+    this.showCopyableInput = null;
     this.selected = id;
     if (oldSel) {
       this.emit(oldSel);
@@ -550,36 +562,55 @@ class Store extends EventEmitter {
   }
 
   inspect(id: ElementID, path: Array<string>, cb: () => void) {
-    invariant(path[0] === 'props' || path[0] === 'state' || path[0] === 'context',
+    var basePath = path[0];
+    invariant(basePath === 'props' || basePath === 'state' || basePath === 'context' || basePath === 'hooksTree',
               'Inspected path must be one of props, state, or context');
-    this._bridge.inspect(id, path, value => {
-      var base = this.get(id).get(path[0]);
-      // $FlowFixMe
-      var inspected: ?{[string]: boolean} = path.slice(1).reduce((obj, attr) => obj ? obj[attr] : null, base);
-      if (inspected) {
-        assign(inspected, value);
-        inspected[consts.inspected] = true;
-      }
-      cb();
-    });
+    if (basePath === 'hooksTree') {
+      this._bridge.inspect('hooksTree', path, value => {
+        var base = this.inspectedHooks;
+        // $FlowFixMe
+        var inspected: ?{[string]: boolean} = path.reduce((obj, attr) => obj ? obj[attr] : null, base);
+        if (inspected) {
+          assign(inspected, value);
+          inspected[consts.inspected] = true;
+        }
+        cb();
+      });
+    } else {
+      this._bridge.inspect(id, path, value => {
+        var base = this.get(id).get(basePath);
+        // $FlowFixMe
+        var inspected: ?{[string]: boolean} = path.slice(1).reduce((obj, attr) => obj ? obj[attr] : null, base);
+        if (inspected) {
+          assign(inspected, value);
+          inspected[consts.inspected] = true;
+        }
+        cb();
+      });
+    }
   }
 
-  changeTraceUpdates(state: ControlState) {
-    this.traceupdatesState = state;
+  changeTraceUpdates(enabled: boolean) {
+    this.traceUpdates = enabled;
     this.emit('traceupdatesstatechange');
-    invariant(state.toJS, 'state.toJS should exist');
-    this._bridge.send('traceupdatesstatechange', state.toJS());
+    this._bridge.send('traceupdatesstatechange', enabled);
+    set(LOCAL_STORAGE_TRACE_UPDATES_KEY, enabled);
   }
 
-  changeColorizer(state: ControlState) {
-    this.colorizerState = state;
+  changeColorizer(enabled: boolean) {
+    this.colorizer = enabled;
     this.emit('colorizerchange');
-    this._bridge.send('colorizerchange', state.toJS());
-    if (this.colorizerState && this.colorizerState.enabled) {
+    this._bridge.send('colorizerchange', enabled);
+    if (enabled) {
       this.highlightSearch();
     } else {
       this.hideHighlight();
     }
+  }
+
+  setInspectedHooks(inspectedHooks: InspectedHooks | null) {
+    this.emit('inspectedHooks');
+    this.inspectedHooks = inspectedHooks;
   }
 
   setInspectEnabled(isInspectEnabled: boolean) {
@@ -600,6 +631,7 @@ class Store extends EventEmitter {
       clearInterval(requestInt);
       this.capabilities = assign(this.capabilities, capabilities);
       this.emit('connected');
+      this.changeTraceUpdates(get(LOCAL_STORAGE_TRACE_UPDATES_KEY, false));
     });
     this._bridge.send('requestCapabilities');
     requestInt = setInterval(() => {
@@ -663,16 +695,17 @@ class Store extends EventEmitter {
   }
 
   _updateComponent(data: DataType) {
-    var node = this.get(data.id);
+    var id = data.id;
+    var node = this.get(id);
     if (!node) {
       return;
     }
     data.renders = node.get('renders') + 1;
-    this._nodes = this._nodes.mergeIn([data.id], Map(data));
+    this._nodes = this._nodes.mergeIn([id], Map(data));
     if (data.children && data.children.forEach) {
       data.children.forEach(cid => {
-        if (!this._parents.get(cid)) {
-          this._parents = this._parents.set(cid, data.id);
+        if (!this._parents.has(cid)) {
+          this._parents = this._parents.set(cid, id);
           var childNode = this._nodes.get(cid);
           var childID = childNode.get('id');
           if (

@@ -24,9 +24,9 @@ type Inspect = (path: Array<string>, cb: () => void) => void;
 type ShowMenu = boolean | (e: DOMEvent, val: any, path: Array<string>, name: string) => void;
 
 type DataViewProps = {
-  data: ?Object,
+  data: ?any,
   path: Array<string>,
-  inspect: Inspect,
+  inspect: Inspect | null,
   showMenu: ShowMenu,
   startOpen?: boolean,
   noSort?: boolean,
@@ -69,20 +69,33 @@ class DataView extends React.Component<DataViewProps> {
 
   render() {
     const {theme} = this.context;
-    var data = this.props.data;
+    const data = this.props.data;
     if (!data) {
       return <div style={missingStyle(theme)}>null</div>;
     }
 
-    var isArray = Array.isArray(data);
-    var elements = [];
-    if (isArray) {
+    const dataType = typeof data;
+    const dataIsSimpleType = dataType === 'number' || dataType === 'string' || dataType === 'boolean';
+    const dataIsArray = Array.isArray(data);
+    const elements = [];
+    if (dataIsSimpleType) {
+      elements.push(<DataItem
+        key="simple"
+        name={''}
+        hideName={true}
+        path={this.props.path}
+        inspect={this.props.inspect}
+        showMenu={this.props.showMenu}
+        readOnly={true}
+        value={data} />
+      );
+    } else if (dataIsArray) {
       // Iterate over array, filling holes with special items
-      var lastIndex = -1;
+      let lastIndex = -1;
       data.forEach((item, i) => {
         if (lastIndex < i - 1) {
           // Have we skipped over a hole?
-          var holeCount = (i - 1) - lastIndex;
+          const holeCount = (i - 1) - lastIndex;
           elements.push(
             this.renderSparseArrayHole(holeCount, i + '-hole')
           );
@@ -92,14 +105,14 @@ class DataView extends React.Component<DataViewProps> {
       });
       if (lastIndex < data.length - 1) {
         // Is there a hole at the end?
-        var holeCount = (data.length - 1) - lastIndex;
+        const holeCount = (data.length - 1) - lastIndex;
         elements.push(
           this.renderSparseArrayHole(holeCount, lastIndex + '-hole')
         );
       }
     } else {
       // Iterate over a regular object
-      var names = Object.keys(data);
+      const names = Object.keys(data);
       if (!this.props.noSort) {
         names.sort(alphanumericSort);
       }
@@ -111,7 +124,7 @@ class DataView extends React.Component<DataViewProps> {
     if (!elements.length) {
       return (
         <div style={emptyStyle(theme)}>
-          {isArray ? 'Empty array' : 'Empty object'}
+          {dataIsArray ? 'Empty array' : 'Empty object'}
         </div>
       );
     }
@@ -142,12 +155,13 @@ DataView.contextTypes = {
 
 type Props = {
   path: Array<string>,
-  inspect: Inspect,
+  inspect: Inspect | null,
   showMenu: ShowMenu,
   startOpen?: boolean,
   noSort?: boolean,
   readOnly?: boolean,
   name: string,
+  hideName?: boolean,
   value: any,
 };
 
@@ -181,17 +195,26 @@ class DataItem extends React.Component<Props, State> {
   }
 
   inspect() {
+    const inspect = this.props.inspect;
+    if (inspect === null) {
+      // The Profiler displays props/state for oudated Fibers.
+      // These Fibers have already been mutated so they can't be inspected.
+      return;
+    }
+
     this.setState({loading: true, open: true});
-    this.props.inspect(this.props.path, () => {
+    inspect(this.props.path, () => {
       this.setState({loading: false});
     });
   }
 
-  toggleOpen() {
+  toggleOpen = () => {
     if (this.state.loading) {
       return;
     }
-    if (this.props.value && this.props.value[consts.inspected] === false) {
+
+    const { value } = this.props;
+    if (value && value[consts.inspected] === false) {
       this.inspect();
       return;
     }
@@ -199,7 +222,7 @@ class DataItem extends React.Component<Props, State> {
     this.setState({
       open: !this.state.open,
     });
-  }
+  };
 
   toggleBooleanValue(e) {
     this.context.onChange(this.props.path, e.target.checked);
@@ -224,14 +247,14 @@ class DataItem extends React.Component<Props, State> {
       preview = previewComplex(data, theme);
     }
 
-    var inspectable = !data || !data[consts.meta] || !data[consts.meta].uninspectable;
-    var open = inspectable && this.state.open && (!data || data[consts.inspected] !== false);
+    var inspectable = typeof this.props.inspect === 'function' && (!data || !data[consts.meta] || !data[consts.meta].uninspectable);
+    var open = this.state.open && (!data || data[consts.inspected] !== false);
     var opener = null;
 
     if (complex && inspectable) {
       opener = (
         <div
-          onClick={this.toggleOpen.bind(this)}
+          onClick={this.toggleOpen}
           style={styles.opener}>
           {open ?
             <span style={expandedArrowStyle(theme)} /> :
@@ -275,12 +298,15 @@ class DataItem extends React.Component<Props, State> {
       <li>
         <div style={styles.head}>
           {opener}
-          <div
-            style={nameStyle(complex, theme)}
-            onClick={inspectable && this.toggleOpen.bind(this)}
-          >
-            {name}:
-          </div>
+          {
+            !this.props.hideName &&
+            <div
+                style={nameStyle(complex, inspectable, theme)}
+                onClick={inspectable ? this.toggleOpen : undefined}
+            >
+              {name}:
+            </div>
+          }
           <div
             onContextMenu={e => {
               if (typeof this.props.showMenu === 'function') {
@@ -313,8 +339,8 @@ function alphanumericSort(a: string, b: string): number {
   return (a < b) ? -1 : 1;
 }
 
-const nameStyle = (isComplex: boolean, theme: Theme) => ({
-  cursor: isComplex ? 'pointer' : 'default',
+const nameStyle = (isComplex: boolean, isInspectable: boolean, theme: Theme) => ({
+  cursor: isComplex && isInspectable ? 'pointer' : 'default',
   color: theme.special03,
   margin: '0 0.25rem',
 });

@@ -109,9 +109,11 @@ class Agent extends EventEmitter {
     var lastSelected;
     this.on('selected', id => {
       var data = this.elementData.get(id);
-      if (data && data.publicInstance && this.global.$r === lastSelected) {
-        this.global.$r = data.publicInstance;
-        lastSelected = data.publicInstance;
+      if (data) {
+        if (data.publicInstance && this.global.$r === lastSelected) {
+          this.global.$r = data.publicInstance;
+          lastSelected = data.publicInstance;
+        }
       }
     });
     this._prevSelected = null;
@@ -380,9 +382,9 @@ class Agent extends EventEmitter {
     this.emit('root', id);
   }
 
-  rootCommitted(renderer: RendererID, internalInstance: OpaqueNodeHandle) {
+  rootCommitted(renderer: RendererID, internalInstance: OpaqueNodeHandle, data: DataType) {
     var id = this.getId(internalInstance);
-    this.emit('rootCommitted', id, internalInstance);
+    this.emit('rootCommitted', id, internalInstance, data);
   }
 
   onMounted(renderer: RendererID, component: OpaqueNodeHandle, data: DataType) {
@@ -395,7 +397,7 @@ class Agent extends EventEmitter {
       send.children = send.children.map(c => this.getId(c));
     }
     send.id = id;
-    send.canUpdate = send.updater && !!send.updater.forceUpdate;
+    send.canUpdate = send.updater && send.updater.canUpdate;
     delete send.type;
     delete send.updater;
     this.emit('mount', send);
@@ -410,7 +412,7 @@ class Agent extends EventEmitter {
       send.children = send.children.map(c => this.getId(c));
     }
     send.id = id;
-    send.canUpdate = send.updater && !!send.updater.forceUpdate;
+    send.canUpdate = send.updater && send.updater.canUpdate;
     delete send.type;
     delete send.updater;
     this.emit('update', send);
@@ -425,7 +427,7 @@ class Agent extends EventEmitter {
       send.children = send.children.map(c => this.getId(c));
     }
     send.id = id;
-    send.canUpdate = send.updater && !!send.updater.forceUpdate;
+    send.canUpdate = send.updater && send.updater.canUpdate;
     delete send.type;
     delete send.updater;
     this.emit('updateProfileTimes', send);

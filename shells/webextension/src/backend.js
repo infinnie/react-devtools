@@ -33,7 +33,7 @@ function setup(hook) {
   var setupRNStyle = require('../../../plugins/ReactNativeStyle/setupBackend');
   var setupHighlighter = require('../../../frontend/Highlighter/setup');
   var setupProfiler = require('../../../plugins/Profiler/backend');
-  var setupRelay = require('../../../plugins/Relay/backend');
+  var setupHooksInspector = require('../../../plugins/HooksInspector/backend').default;
 
   var listeners = [];
 
@@ -75,7 +75,7 @@ function setup(hook) {
   }
 
   setupProfiler(bridge, agent, hook);
-  setupRelay(bridge, agent, hook);
+  setupHooksInspector(bridge, agent);
 
   agent.on('shutdown', () => {
     hook.emit('shutdown');

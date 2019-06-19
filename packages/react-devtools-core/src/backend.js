@@ -22,15 +22,13 @@ var Agent = require('../../../agent/Agent');
 var Bridge = require('../../../agent/Bridge');
 var ProfileCollector = require('../../../plugins/Profiler/ProfileCollector');
 var installGlobalHook = require('../../../backend/installGlobalHook');
-var installRelayHook = require('../../../plugins/Relay/installRelayHook');
 var inject = require('../../../agent/inject');
 var invariant = require('assert');
 var setupRNStyle = require('../../../plugins/ReactNativeStyle/setupBackend');
+var setupHooksInspector = require('../../../plugins/HooksInspector/backend').default;
 var setupProfiler = require('../../../plugins/Profiler/backend');
-var setupRelay = require('../../../plugins/Relay/backend');
 
 installGlobalHook(window);
-installRelayHook(window);
 
 if (window.document) {
   // This shell is universal, and might be used inside a web app.
@@ -69,7 +67,7 @@ function connectToDevTools(options: ?ConnectOptions) {
   // See D6251744.
   var ws = websocket ? websocket : new window.WebSocket(uri);
   ws.onclose = handleClose;
-  ws.onerror = handleClose;
+  ws.onerror = handleFailed;
   ws.onmessage = handleMessage;
   ws.onopen = function() {
     var wall = {
@@ -91,6 +89,12 @@ function connectToDevTools(options: ?ConnectOptions) {
     if (!hasClosed) {
       hasClosed = true;
       scheduleRetry();
+      closeListeners.forEach(fn => fn());
+    }
+  }
+  function handleFailed() {
+    if (!hasClosed) {
+      hasClosed = true;
       closeListeners.forEach(fn => fn());
     }
   }
@@ -123,7 +127,7 @@ function setupBackend(wall, resolveRNStyle) {
     if (agent) {
       agent.emit('shutdown');
     }
-    // This appears necessary for plugin (e.g. Relay) cleanup.
+    // This appears necessary for plugin cleanup.
     window.__REACT_DEVTOOLS_GLOBAL_HOOK__.emit('shutdown');
     bridge = null;
     agent = null;
@@ -142,7 +146,7 @@ function setupBackend(wall, resolveRNStyle) {
   }
 
   setupProfiler(bridge, agent, window.__REACT_DEVTOOLS_GLOBAL_HOOK__);
-  setupRelay(bridge, agent, window.__REACT_DEVTOOLS_GLOBAL_HOOK__);
+  setupHooksInspector(bridge, agent);
 
   var _connectTimeout = setTimeout(() => {
     console.warn('react-devtools agent got no connection');
