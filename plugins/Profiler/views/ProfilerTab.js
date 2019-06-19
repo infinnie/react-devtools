@@ -330,7 +330,7 @@ class ProfilerTab extends React.Component<Props, State> {
         justifyContent: 'stretch',
         flexDirection: 'row',
         color: theme.base05,
-        fontFamily: sansSerif.family,
+        // fontFamily: sansSerif.family,
         fontSize: sansSerif.sizes.normal,
       }}>
         <div style={{
@@ -425,7 +425,7 @@ const RecordingInProgress = ({stopRecording, theme}) => (
         color: theme.base00,
         padding: '.5rem 0.75rem',
         marginTop: '0.5rem',
-        fontFamily: sansSerif.family,
+        // fontFamily: sansSerif.family,
         fontSize: sansSerif.sizes.normal,
       }}
       title="Stop recording"

@@ -116,7 +116,7 @@ Breadcrumb.contextTypes = {
 };
 
 const containerStyle = (theme: Theme) => ({
-  fontFamily: sansSerif.family,
+  // fontFamily: sansSerif.family,
   listStyle: 'none',
   padding: '0 0.5rem',
   margin: 0,

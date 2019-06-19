@@ -102,7 +102,7 @@ const applicationStyle = (theme: Theme) => ({
   width: '600px',
   maxWidth: '100%',
   margin: '0 auto',
-  fontFamily: sansSerif.family,
+  // fontFamily: sansSerif.family,
   fontSize: sansSerif.sizes.normal,
 });
 

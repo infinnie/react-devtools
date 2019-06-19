@@ -45,7 +45,7 @@ var styles = {
     cursor: 'default',
     display: 'inline-block',
     outline: 'none',
-    fontFamily: sansSerif.family,
+    // fontFamily: sansSerif.family,
     userSelect: 'none',
     marginRight: '10px',
   },

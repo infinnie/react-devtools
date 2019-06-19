@@ -81,7 +81,8 @@ class SettingsPane extends Component {
       <div className={styles.SettingsPane}>
         {this.context.showInspectButton && (
           <button
-            className={this.props.isInspectEnabled ? styles.ActiveInspectMenuButton : styles.InspectMenuButton}
+            className={this.props.isInspectEnabled
+              ? [styles.ActiveInspectMenuButton].concat(this.props.themeInvert ? [] : styles.ActiveInspectMenuButtonInverted).join(' ') : styles.InspectMenuButton}
             onClick={this.props.toggleInspectEnabled}
             title="Select a React element in the page to inspect it"
           >
@@ -139,7 +140,7 @@ SettingsPane.propTypes = {
 
 const Wrapped = decorate({
   listeners(props) {
-    return ['isInspectEnabled', 'isRecording', 'searchText'];
+    return ['isInspectEnabled', 'isRecording', 'searchText', 'themeStore'];
   },
   props(store) {
     return {
@@ -153,6 +154,7 @@ const Wrapped = decorate({
       },
       toggleInspectEnabled: () => store.setInspectEnabled(!store.isInspectEnabled),
       toggleRecord: () => store.setIsRecording(!store.isRecording),
+      themeInvert: store.themeStore.theme.hasInvert,
     };
   },
 }, SettingsPane);

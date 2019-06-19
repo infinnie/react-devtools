@@ -182,6 +182,7 @@ const containerStyle = (preferencesPanelShown: boolean, theme: Theme) => ({
   display: 'flex',
   minWidth: 0,
   position: preferencesPanelShown ? 'relative' : null,
+  fontFamily: 'var(--font-family-sans)',
 });
 
 module.exports = Container;

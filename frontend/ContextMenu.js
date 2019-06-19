@@ -15,7 +15,7 @@ const React = require('react');
 const nullthrows = require('nullthrows').default;
 const {sansSerif} = require('./Themes/Fonts');
 const HighlightHover = require('./HighlightHover');
-
+var styleClasses = require('./ContextMenu.css');
 const decorate = require('./decorate');
 
 import type {Theme} from './types';
@@ -30,7 +30,7 @@ type Props = {
   open: boolean,
   hideContextMenu: () => void,
   items: Array<MenuItem>,
-  pos: {
+  pos?: {
     x: number,
     y: number,
   },
@@ -57,6 +57,14 @@ class ContextMenu extends React.Component<Props, State> {
 
   constructor(props) {
     super(props);
+    if (props.pos) {
+      this.posX = props.pos.x;
+      this.posY = props.pos.y;
+    } else {
+      this.posX = 0;
+      this.posY = 0;
+    }
+    this.cachedItems = props.items || [];
 
     this.handleBackdropClick = this.handleBackdropClick.bind(this);
   }
@@ -67,7 +75,20 @@ class ContextMenu extends React.Component<Props, State> {
 
   handleBackdropClick(evt) {
     evt.preventDefault();
-    this.props.hideContextMenu();
+    if (this.props.hideContextMenu) {
+      this.props.hideContextMenu();
+    }
+  }
+
+  shouldComponentUpdate(nextProps) {
+    if (nextProps.pos) {
+      this.posX = nextProps.pos.x;
+      this.posY = nextProps.pos.y;
+    }
+    if (nextProps.items) {
+      this.cachedItems = nextProps.items;
+    }
+    return true;
   }
 
   _setRef = element => {
@@ -90,25 +111,23 @@ class ContextMenu extends React.Component<Props, State> {
 
   render() {
     const {theme} = this.context;
-    const {items, open, pos} = this.props;
+    const {open, pos} = this.props;
     const {elementHeight, windowHeight} = this.state;
+
+    var items = this.cachedItems;
 
     if (pos && (pos.y + elementHeight) > windowHeight) {
       pos.y -= elementHeight;
     }
 
-    if (!open) {
-      return <div style={styles.hidden} />;
-    }
-
     return (
-      <div style={styles.backdrop} onClick={this.handleBackdropClick} ref={this._setRef}>
-        <ul style={containerStyle(pos.x, pos.y, theme)}>
+      <div className={[styleClasses.ContextMenu].concat(open ? [] : styleClasses.ContextMenuHidden).join(' ')} onClick={this.handleBackdropClick} ref={this._setRef}>
+        <ul style={containerStyle(this.posX, this.posY, theme)} className={styleClasses.ContextMenu__inner}>
           {!items.length && (
             <li style={emptyStyle(theme)}>No actions</li>
           )}
           {items.map((item, i) => item && (
-            <li style={listItemStyle(theme)} key={item.key} onClick={evt => this.onClick(i, evt)}>
+            <li style={listItemStyle(theme)} key={item.key} onClick={open ? evt => this.onClick(i, evt) : null}>
               <HighlightHover style={styles.highlightHoverItem}>
                 {item.title}
               </HighlightHover>
@@ -165,7 +184,6 @@ const containerStyle = (xPos: number, yPos: number, theme: Theme) => ({
   margin: 0,
   padding: '0.25rem 0',
   fontSize: sansSerif.sizes.normal,
-  fontFamily: sansSerif.family,
   borderRadius: '0.2rem',
   overflow: 'hidden',
   zIndex: 1,
@@ -183,19 +201,6 @@ const listItemStyle = (theme: Theme) => ({
 });
 
 var styles = {
-  hidden: {
-    display: 'none',
-  },
-
-  backdrop: {
-    position: 'fixed',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    zIndex: 1,
-  },
-
   highlightHoverItem: {
     padding: '0.35rem .75rem',
     cursor: 'default',

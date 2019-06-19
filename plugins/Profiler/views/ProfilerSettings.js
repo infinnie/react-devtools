@@ -80,7 +80,7 @@ class ProfilerSettings extends PureComponent<Props, void> {
         <div
           onClick={this.stopClickEventFromBubbling}
           style={{
-            fontFamily: sansSerif.family,
+            // fontFamily: sansSerif.family,
             backgroundColor: theme.base01,
             border: `1px solid ${theme.base03}`,
             color: theme.base05,

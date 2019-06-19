@@ -43,6 +43,7 @@
   border-width: 4px 0 4px 6px;
   display: inline-block;
   vertical-align: middle;
+  margin-bottom: 1px;
 }
 
 .expandedArrow {
@@ -51,4 +52,5 @@
   border-width: 6px 4px 0 4px;
   display: inline-block;
   vertical-align: middle;
+  margin-bottom: 1px;
 }

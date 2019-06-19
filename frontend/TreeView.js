@@ -143,7 +143,7 @@ TreeView.contextTypes = {
 
 const noSearchResultsStyle = (theme: Theme) => ({
   color: theme.base04,
-  fontFamily: sansSerif.family,
+  // fontFamily: sansSerif.family,
   fontSize: sansSerif.sizes.large,
   fontStyle: 'italic',
   padding: '0.5rem',

@@ -74,7 +74,7 @@ const tabStyle = (isSelected: boolean, theme: Theme) => {
     padding: '0.25rem 0.75rem',
     lineHeight: 1.2,
     fontSize: sansSerif.sizes.normal,
-    fontFamily: sansSerif.family,
+    // fontFamily: sansSerif.family,
     cursor: 'pointer',
     borderTop: '1px solid transparent',
     borderBottom: isSelected ? `2px solid ${ theme.hasInvert? theme.state00 : theme.special05 }` : 'none',

@@ -57,6 +57,10 @@
   color: var(--theme-state00);
 }
 
+.ActiveInspectMenuButtonInverted {
+  color: var(--theme-special05);
+}
+
 .SearchIcon {
   position: absolute;
   display: inline-block;
@@ -82,6 +86,15 @@
   border: none;
   outline: none;
   width: 100%;
+  font-family: "Segoe UI", sans-serif
+}
+.Input::-webkit-input-placeholder {
+  color: var(--theme-base04);
+  opacity: .7;
+}
+.Input::placeholder {
+  color: var(--theme-base04);
+  opacity: .7;
 }
 .Input:focus {
   background-color: var(--theme-base00);

@@ -132,7 +132,7 @@ const ProfilerFiberDetailPane = ({
                 <div style={{
                   lineHeight: '1.25rem',
                   marginLeft: '1rem',
-                  fontFamily: sansSerif.family,
+                  // fontFamily: sansSerif.family,
                   fontSize: sansSerif.sizes.normal,
                 }}>
                   Not available in profiling mode.

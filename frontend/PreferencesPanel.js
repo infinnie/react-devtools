@@ -107,7 +107,7 @@ class PreferencesPanel extends React.Component<Props, State> {
               onKeyUp={this._onKeyUp}
               ref={this._setSelectRef}
               value={themeName}
-              style={{fontFamily: sansSerif.family, fontSize: sansSerif.sizes.normal}}
+              style={{fontFamily: 'inherit', fontSize: sansSerif.sizes.normal}}
             >
               {browserName && (<option value="">{browserName}</option>)}
               {hasCustomTheme && (<option value={CUSTOM_THEME_NAME}>Custom</option>)}
@@ -244,7 +244,7 @@ const panelStyle = (theme: Theme, show) => ({
   flexDirection: 'column',
   alignItems: 'flex-start',
   zIndex: 1,
-  fontFamily: sansSerif.family,
+  // fontFamily: sansSerif.family,
   backgroundColor: theme.base01,
   border: `1px solid ${theme.base03}`,
   color: theme.base05,
@@ -285,7 +285,7 @@ const styles = {
     marginTop: '0.5rem',
     marginRight: '0.25rem',
     padding: '0.25rem 0.75rem',
-    fontFamily: sansSerif.family,
+    fontFamily: 'inherit',
     fontSize: '100%',
   },
   preference: {

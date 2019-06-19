@@ -243,7 +243,7 @@ var WrappedPropState = decorate({
 }, PropState);
 
 const emptyStyle = (theme: Theme) => ({
-  fontFamily: sansSerif.family,
+  // fontFamily: sansSerif.family,
   fontSize: sansSerif.sizes.large,
   fontStyle: 'italic',
   margin: 'auto',
@@ -262,7 +262,7 @@ const sourcePosStyle = (theme: Theme) => ({
 });
 
 const noPropsStateStyle = (theme: Theme) => ({
-  fontFamily: sansSerif.family,
+  // fontFamily: sansSerif.family,
   fontSize: sansSerif.sizes.normal,
   color: theme.base03,
   textAlign: 'center',

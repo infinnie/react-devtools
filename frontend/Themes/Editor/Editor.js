@@ -256,7 +256,7 @@ const editorStyle = (theme: Theme) => ({
   backgroundColor: theme.base01,
   color: theme.base05,
   border: `1px solid ${theme.base03}`,
-  fontFamily: sansSerif.family,
+  // fontFamily: sansSerif.family,
   fontSize: sansSerif.sizes.normal,
 });
 

@@ -1,0 +1,23 @@
+.ContextMenu {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 1;
+    transition: .2s;
+}
+
+.ContextMenuHidden {
+    visibility: hidden;
+    opacity: 0;
+}
+
+.ContextMenu__inner {
+    transition: transform .1s;
+    transform-origin: center top;
+}
+
+.ContextMenuHidden .ContextMenu__inner {
+    transform: rotateX(90deg);
+}

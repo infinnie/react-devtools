@@ -434,7 +434,7 @@ const containerStyle = (theme: Theme) => ({
   flexShrink: 0,
 });
 const loadingStyle = (theme: Theme) => ({
-  fontFamily: sansSerif.family,
+  fontFamily: 'var(--font-family-sans)',
   fontSize: sansSerif.sizes.large,
   textAlign: 'center',
   padding: 30,
