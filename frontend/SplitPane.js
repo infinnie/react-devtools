@@ -56,7 +56,7 @@ class SplitPane extends React.Component<Props, State> {
     const width = Math.floor(node.offsetWidth * (this.props.isVertical ? 0.6 : 0.3));
 
     this.setState({
-      width: Math.min(250, width),
+      width: Math.min(300, width),
       height: Math.floor(node.offsetHeight * 0.3),
     });
   }

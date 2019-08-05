@@ -52,6 +52,10 @@ function shouldUseVerticalLayout(window) {
   return window.innerWidth < IS_VERTICAL_BREAKPOINT;
 }
 
+function handleContextMenu(e) {
+  e.preventDefault()
+}
+
 class Container extends React.Component<Props, State> {
   // eslint shouldn't error on type positions. TODO: update eslint
   // eslint-disable-next-line no-undef
@@ -117,7 +121,7 @@ class Container extends React.Component<Props, State> {
     };
 
     return (
-      <div style={containerStyle(preferencesPanelShown, theme)}>
+      <div style={containerStyle(preferencesPanelShown, theme)} onContextMenu={handleContextMenu}>
         <TabbedPane tabs={tabs} />
         <PreferencesPanel />
         <ContextMenu itemSources={[DEFAULT_MENU_ITEMS, this.props.menuItems]} />
