@@ -13,12 +13,12 @@
 const PropTypes = require('prop-types');
 const React = require('react');
 const nullthrows = require('nullthrows').default;
-const {sansSerif} = require('./Themes/Fonts');
+const { sansSerif } = require('./Themes/Fonts');
 const HighlightHover = require('./HighlightHover');
 var styleClasses = require('./ContextMenu.css');
 const decorate = require('./decorate');
 
-import type {Theme} from './types';
+import type { Theme } from './types';
 
 export type MenuItem = {
   key: string,
@@ -66,6 +66,8 @@ class ContextMenu extends React.Component<Props, State> {
     }
     this.cachedItems = props.items || [];
 
+    this.elementRef = null;
+
     this.handleBackdropClick = this.handleBackdropClick.bind(this);
   }
 
@@ -91,49 +93,67 @@ class ContextMenu extends React.Component<Props, State> {
     return true;
   }
 
-  _setRef = element => {
+  componentDidUpdate() {
+    const element = this.elementRef;
     if (!element) {
       return;
     }
 
-    const elementHeight = nullthrows(element.querySelector('ul')).clientHeight;
+    const elementHeight = nullthrows(element.querySelector('.selectthis')).clientHeight;
     const windowHeight = window.innerHeight;
 
     if (this.state.elementHeight === elementHeight && this.state.windowHeight === windowHeight) {
       return;
     }
 
-    this.setState({
-      elementHeight: elementHeight,
-      windowHeight: windowHeight,
-    });
+    setTimeout(() => {
+      this.setState({
+        elementHeight: elementHeight,
+        windowHeight: windowHeight,
+      });
+    }, 0);
+  }
+
+  _setRef = element => {
+    this.elementRef = element;
   };
 
   render() {
-    const {theme} = this.context;
-    const {open, pos} = this.props;
-    const {elementHeight, windowHeight} = this.state;
+    const { theme } = this.context;
+    const { open } = this.props;
+    const { elementHeight, windowHeight } = this.state;
 
     var items = this.cachedItems;
+    var posY = this.posY;
+    var inverted = posY + elementHeight > windowHeight;
 
-    if (pos && (pos.y + elementHeight) > windowHeight) {
-      pos.y -= elementHeight;
+    if (inverted) {
+      posY -= elementHeight;
     }
 
     return (
-      <div className={[styleClasses.ContextMenu].concat(open ? [] : styleClasses.ContextMenuHidden).join(' ')} onClick={this.handleBackdropClick} ref={this._setRef}>
-        <ul style={containerStyle(this.posX, this.posY, theme)} className={styleClasses.ContextMenu__inner}>
-          {!items.length && (
-            <li style={emptyStyle(theme)}>No actions</li>
-          )}
-          {items.map((item, i) => item && (
-            <li style={listItemStyle(theme)} key={item.key} onClick={open ? evt => this.onClick(i, evt) : null}>
-              <HighlightHover style={styles.highlightHoverItem}>
-                {item.title}
-              </HighlightHover>
-            </li>
-          ))}
-        </ul>
+      <div
+        className={[styleClasses.ContextMenu].concat(
+          open ? [] : styleClasses.ContextMenuHidden,
+          inverted ? styleClasses.ContextMenuInverted : []
+        ).join(' ')}
+        onClick={this.handleBackdropClick}
+        ref={this._setRef}
+      >
+        <div className="selectthis" style={containerStyle(this.posX, posY, theme)}>
+          <ul className={styleClasses.ContextMenu__inner}>
+            {!items.length && (
+              <li style={emptyStyle(theme)}>No actions</li>
+            )}
+            {items.map((item, i) => item && (
+              <li style={listItemStyle(theme)} key={item.key} onClick={open ? evt => this.onClick(i, evt) : null}>
+                <HighlightHover style={styles.highlightHoverItem}>
+                  {item.title}
+                </HighlightHover>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     );
   }
@@ -149,9 +169,9 @@ var Wrapped = decorate({
   },
   props(store, props) {
     if (!store.contextMenu) {
-      return {open: false};
+      return { open: false };
     }
-    var {x, y, type, args} = store.contextMenu;
+    var { x, y, type, args } = store.contextMenu;
 
     var items = [];
     args.push(store);
@@ -180,15 +200,12 @@ const containerStyle = (xPos: number, yPos: number, theme: Theme) => ({
   top: `${yPos}px`,
   left: `${xPos}px`,
   position: 'fixed',
-  listStyle: 'none',
-  margin: 0,
-  padding: '0.25rem 0',
   fontSize: sansSerif.sizes.normal,
   borderRadius: '0.2rem',
   overflow: 'hidden',
   zIndex: 1,
   backgroundColor: theme.base00,
-  boxShadow:'0 6px 20px rgba(0,0,0,.1),0 0 8px rgba(0,0,0,.08)',
+  boxShadow: '0 6px 20px rgba(0,0,0,.1),0 0 8px rgba(0,0,0,.08)',
 });
 
 const emptyStyle = (theme: Theme) => ({

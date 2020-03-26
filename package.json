@@ -43,7 +43,8 @@
     "semver": "^5.5.1",
     "style-loader": "^0.23.1",
     "webpack": "^4.26.0",
-    "webpack-cli": "^3.1.2"
+    "webpack-cli": "^3.1.2",
+    "element-ui": "2.13.0"
   },
   "license": "BSD-3-Clause",
   "repository": "facebook/react-devtools",

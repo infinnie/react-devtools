@@ -78,15 +78,18 @@
 
 .Input {
   font-size: var(--font-size-sans-normal);
-  padding: 0.25rem;
+  padding: 0.25rem .5rem;
   margin: 0.25rem;
-  margin-left: 1.75rem;
+  margin-left: 2rem;
   background-color: transparent;
   color: var(--theme-base05);
   border: none;
   outline: none;
   width: 100%;
-  font-family: "Segoe UI", sans-serif
+  font-family: "Segoe UI", sans-serif;
+  box-shadow: 0 0 6px rgba(0,0,0,.06);
+  background-color: var(--theme-base00);
+  transition: .3s;
 }
 .Input::-webkit-input-placeholder {
   color: var(--theme-base04);
@@ -96,6 +99,15 @@
   color: var(--theme-base04);
   opacity: .7;
 }
+
+.Input:hover {
+  box-shadow: 0 0 0 1px rgba(0,0,0,.06), 0 0 8px rgba(0,0,0,.06);
+}
+
 .Input:focus {
-  background-color: var(--theme-base00);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.1), 0 0 8px rgba(0,0,0,.06);
+}
+
+.InputDark:focus,.InputDark:hover {
+  box-shadow: 0 0 0 1px rgba(255,255,255,.1), 0 0 8px rgba(0,0,0,.06);
 }

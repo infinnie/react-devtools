@@ -21,14 +21,14 @@ type Props = {
 // TODO Remove DEFAULT_STYLE in favor of className once all styles have been migrated.
 // For now, suppress inline styles when a className is provided–
 // since these would always override className values.
-const SvgIcon = ({ className, path, style }: Props) => (
+const SvgIcon = ({ className, path, style, viewBox = '0 0 24 24' }: Props) => (
   <svg
     className={className}
     style={className ? null : {
       ...DEFAULT_STYLE,
       ...style,
     }}
-    viewBox="0 0 24 24"
+    viewBox={viewBox}
   >
     <path d={path}></path>
   </svg>

@@ -16,8 +16,15 @@
 .ContextMenu__inner {
     transition: transform .1s;
     transform-origin: center top;
+    list-style: none;
+    margin: 0;
+    padding: 0.25rem 0;
 }
 
 .ContextMenuHidden .ContextMenu__inner {
     transform: rotateX(90deg);
+}
+
+.ContextMenuInverted .ContextMenu__inner {
+    transform-origin: center bottom;
 }

@@ -10,12 +10,13 @@
 'use strict';
 
 import PropTypes from 'prop-types';
-import React, {Component, createRef} from 'react';
-import {findDOMNode} from 'react-dom';
+import React, { Component, createRef } from 'react';
+import { findDOMNode } from 'react-dom';
 import SvgIcon from './SvgIcon';
 import Icons from './Icons';
 import decorate from './decorate';
 import styles from './SettingsPane.css';
+import Color from 'element-ui/packages/color-picker/src/color';
 
 type EventLike = {
   keyCode: number,
@@ -26,7 +27,7 @@ type EventLike = {
 
 class SettingsPane extends Component {
   input = createRef();
-  state = {focused: false};
+  state = { focused: false };
 
   componentDidMount() {
     const doc = findDOMNode(this).ownerDocument;
@@ -93,16 +94,16 @@ class SettingsPane extends Component {
         <div className={styles.SearchInputWrapper}>
           <input
             ref={this.input}
-            className={styles.Input}
+            className={[styles.Input].concat(this.props.themeIsDark ? styles.InputDark : '').join(' ')}
             value={searchText}
-            onFocus={() => this.setState({focused: true})}
-            onBlur={() => this.setState({focused: false})}
+            onFocus={() => this.setState({ focused: true })}
+            onBlur={() => this.setState({ focused: false })}
             onKeyDown={e => this.onKeyDown(e.key)}
             placeholder="Search (text or /regex/)"
             onChange={e => this.props.onChangeSearch(e.target.value)}
             title="Search by React component name or text"
           />
-          <SvgIcon className={styles.SearchIcon} path={Icons.SEARCH} />
+          <SvgIcon className={styles.SearchIcon} path={Icons.SEARCH} viewBox="0 0 28 28" />
           {!!searchText && (
             <div
               className={styles.ClearSearchButton}
@@ -138,11 +139,16 @@ SettingsPane.propTypes = {
   toggleInspectEnabled: PropTypes.func,
 };
 
+const color = new Color();
+
 const Wrapped = decorate({
   listeners(props) {
     return ['isInspectEnabled', 'isRecording', 'searchText', 'themeStore'];
   },
   props(store) {
+    color.fromString(store.themeStore.theme.base00);
+    const rgb = color.toRgb();
+    console.log(rgb);
     return {
       isInspectEnabled: store.isInspectEnabled,
       isRecording: store.isRecording,
@@ -155,6 +161,8 @@ const Wrapped = decorate({
       toggleInspectEnabled: () => store.setInspectEnabled(!store.isInspectEnabled),
       toggleRecord: () => store.setIsRecording(!store.isRecording),
       themeInvert: store.themeStore.theme.hasInvert,
+      // eslint-disable-next-line no-floating-decimal
+      themeIsDark: rgb.r * .3 + rgb.g * .55 + rgb.b * .15 < 128,
     };
   },
 }, SettingsPane);
