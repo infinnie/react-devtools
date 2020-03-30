@@ -679,9 +679,9 @@ const TomorrowNight: Theme = {
 const Some: Theme = {
   displayName: 'Something',
   base00: '#ffffff',
-  base01: '#f3f3f3',
+  base01: '#f6f6f6',
   base02: '#eeeeee',
-  base03: '#dadada',
+  base03: '#e2e2e2',
   base04: '#888888',
   base05: '#666666',
   special00: '#800000',

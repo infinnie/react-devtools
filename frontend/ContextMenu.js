@@ -51,6 +51,7 @@ class ContextMenu extends React.Component<Props, State> {
   state = {
     elementHeight: 0,
     windowHeight: 0,
+    windowWidth: 0,
   };
 
   handleBackdropClick: () => void;
@@ -101,8 +102,9 @@ class ContextMenu extends React.Component<Props, State> {
 
     const elementHeight = nullthrows(element.querySelector('.selectthis')).clientHeight;
     const windowHeight = window.innerHeight;
+    const windowWidth = window.innerWidth;
 
-    if (this.state.elementHeight === elementHeight && this.state.windowHeight === windowHeight) {
+    if (this.state.elementHeight === elementHeight && this.state.windowHeight === windowHeight && this.state.windowWidth === windowWidth) {
       return;
     }
 
@@ -110,6 +112,7 @@ class ContextMenu extends React.Component<Props, State> {
       this.setState({
         elementHeight: elementHeight,
         windowHeight: windowHeight,
+        windowWidth: windowWidth,
       });
     }, 0);
   }
@@ -121,15 +124,17 @@ class ContextMenu extends React.Component<Props, State> {
   render() {
     const { theme } = this.context;
     const { open } = this.props;
-    const { elementHeight, windowHeight } = this.state;
+    const { elementHeight, windowHeight, windowWidth } = this.state;
 
     var items = this.cachedItems;
     var posY = this.posY;
     var inverted = posY + elementHeight > windowHeight;
 
     if (inverted) {
-      posY -= elementHeight;
+      posY = Math.max(posY - elementHeight, 0);
     }
+
+    var posX = Math.max(Math.min(this.posX, windowWidth - 176), 0);
 
     return (
       <div
@@ -140,8 +145,8 @@ class ContextMenu extends React.Component<Props, State> {
         onClick={this.handleBackdropClick}
         ref={this._setRef}
       >
-        <div className="selectthis" style={containerStyle(this.posX, posY, theme)}>
-          <ul className={styleClasses.ContextMenu__inner}>
+        <div className="selectthis" style={containerStyle(posX, posY)}>
+          <ul className={styleClasses.ContextMenu__inner} style={{ backgroundColor: theme.base00 }}>
             {!items.length && (
               <li style={emptyStyle(theme)}>No actions</li>
             )}
@@ -196,20 +201,16 @@ var Wrapped = decorate({
 }, ContextMenu);
 
 
-const containerStyle = (xPos: number, yPos: number, theme: Theme) => ({
+const containerStyle = (xPos: number, yPos: number) => ({
   top: `${yPos}px`,
   left: `${xPos}px`,
   position: 'fixed',
   fontSize: sansSerif.sizes.normal,
-  borderRadius: '0.2rem',
-  overflow: 'hidden',
   zIndex: 1,
-  backgroundColor: theme.base00,
-  boxShadow: '0 6px 20px rgba(0,0,0,.1),0 0 8px rgba(0,0,0,.08)',
 });
 
 const emptyStyle = (theme: Theme) => ({
-  padding: '0.35rem .75rem',
+  padding: '0.35rem 1rem',
   color: theme.base03,
 });
 
@@ -219,7 +220,7 @@ const listItemStyle = (theme: Theme) => ({
 
 var styles = {
   highlightHoverItem: {
-    padding: '0.35rem .75rem',
+    padding: '0.35rem 1rem',
     cursor: 'default',
     WebkitUserSelect: 'none',
     MozUserSelect: 'none',

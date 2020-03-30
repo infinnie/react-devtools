@@ -4,8 +4,8 @@
   flex-shrink: 0;
   align-items: center;
   position: relative;
-  background-color: var(--theme-base01);
-  border-bottom: 1px solid var(--theme-base03);
+  background-color: var(--theme-base02);
+  border-bottom: 1px solid transparent;
 }
 
 .SettingsMenuButton {
@@ -29,16 +29,25 @@
 }
 
 .ClearSearchButton {
-  font-size: var(--font-size-sans-large);
-  padding: 0 0.5rem;
+  font-size: 18px;
+  padding: 0 0.5rem .25rem;
   position: absolute;
   cursor: default;
-  right: 0;
+  right: .25rem;
   line-height: 28px;
-  color: var(--theme-base02);
+  color: rgba(0,0,0,.2)
 }
+
+.ClearSearchButton--light {
+  color: rgba(255,255,255,.2);
+}
+
 .ClearSearchButton:hover {
-  color: var(--theme-base04);
+  color: rgba(0,0,0,.3)
+}
+
+.ClearSearchButton--light:hover {
+  color: rgba(255,255,255,.3);
 }
 
 .ActiveInspectMenuButton,
@@ -65,7 +74,7 @@
   position: absolute;
   display: inline-block;
   pointer-events: none;
-  left: 0.5rem;
+  left: 0.8rem;
   top: 0;
   width: 1em;
   height: 100%;
@@ -80,14 +89,13 @@
   font-size: var(--font-size-sans-normal);
   padding: 0.25rem .5rem;
   margin: 0.25rem;
-  margin-left: 2rem;
+  padding-left: 2rem;
   background-color: transparent;
   color: var(--theme-base05);
   border: none;
   outline: none;
   width: 100%;
   font-family: "Segoe UI", sans-serif;
-  box-shadow: 0 0 6px rgba(0,0,0,.06);
   background-color: var(--theme-base00);
   transition: .3s;
 }
@@ -101,7 +109,7 @@
 }
 
 .Input:hover {
-  box-shadow: 0 0 0 1px rgba(0,0,0,.06), 0 0 8px rgba(0,0,0,.06);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04), 0 0 6px rgba(0,0,0,.06);
 }
 
 .Input:focus {

@@ -10,7 +10,7 @@
  */
 'use strict';
 
-import type {Theme, DOMEvent} from '../types';
+import type { Theme, DOMEvent } from '../types';
 
 const PropTypes = require('prop-types');
 const React = require('react');
@@ -20,8 +20,13 @@ const nullthrows = require('nullthrows').default;
 const consts = require('../../agent/consts');
 const previewComplex = require('./previewComplex');
 
+const Color = require('element-ui/packages/color-picker/src/color').default;
+
+const color = new Color();
+const isDark = rgb => Math.round(((rgb.r * 299) + (rgb.g * 587) + (rgb.b * 114)) / 1000) <= 125;
+
 type Inspect = (path: Array<string>, cb: () => void) => void;
-type ShowMenu = boolean | (e: DOMEvent, val: any, path: Array<string>, name: string) => void;
+type ShowMenu = boolean | (e: DOMEvent, val: any, path: Array < string >, name: string) => void;
 
 type DataViewProps = {
   data: ?any,
@@ -39,7 +44,7 @@ class DataView extends React.Component<DataViewProps> {
   };
 
   renderSparseArrayHole(count: number, key: string) {
-    const {theme} = this.context;
+    const { theme } = this.context;
 
     return (
       <li key={key}>
@@ -68,7 +73,7 @@ class DataView extends React.Component<DataViewProps> {
   }
 
   render() {
-    const {theme} = this.context;
+    const { theme } = this.context;
     const data = this.props.data;
     if (!data) {
       return <div style={missingStyle(theme)}>null</div>;
@@ -179,7 +184,7 @@ class DataItem extends React.Component<Props, State> {
 
   constructor(props) {
     super(props);
-    this.state = {open: !!this.props.startOpen, loading: false};
+    this.state = { open: !!this.props.startOpen, loading: false };
   }
 
   componentDidMount() {
@@ -202,9 +207,9 @@ class DataItem extends React.Component<Props, State> {
       return;
     }
 
-    this.setState({loading: true, open: true});
+    this.setState({ loading: true, open: true });
     inspect(this.props.path, () => {
-      this.setState({loading: false});
+      this.setState({ loading: false });
     });
   }
 
@@ -229,7 +234,7 @@ class DataItem extends React.Component<Props, State> {
   }
 
   render() {
-    const {theme} = this.context;
+    const { theme } = this.context;
     var data = this.props.value;
     var otype = typeof data;
     var complex = true;
@@ -301,8 +306,8 @@ class DataItem extends React.Component<Props, State> {
           {
             !this.props.hideName &&
             <div
-                style={nameStyle(complex, inspectable, theme)}
-                onClick={inspectable ? this.toggleOpen : undefined}
+              style={nameStyle(complex, inspectable, theme)}
+              onClick={inspectable ? this.toggleOpen : undefined}
             >
               {name}:
             </div>
@@ -313,7 +318,7 @@ class DataItem extends React.Component<Props, State> {
                 this.props.showMenu(e, this.props.value, this.props.path, name);
               }
             }}
-            style={previewStyle(theme, this.props.value===null? 'null' :typeof this.props.value)}
+            style={previewStyle(theme, this.props.value === null ? 'null' : typeof this.props.value)}
           >
             {preview}
           </div>
@@ -346,19 +351,19 @@ const nameStyle = (isComplex: boolean, isInspectable: boolean, theme: Theme) => 
 });
 
 const previewStyle = (theme: Theme, type: string) => {
-  var colorLookUp={
-    number:'special01',
-    boolean:'special02',
-    string:'special00',
-    undefined:'base05',
-    null:'special02',
+  var colorLookUp = {
+    number: 'special01',
+    boolean: 'special02',
+    string: 'special00',
+    undefined: 'base05',
+    null: 'special02',
   };
   return ({
     display: 'flex',
     whiteSpace: 'pre',
     wordBreak: 'break-word',
     flex: 1,
-    color: theme[colorLookUp[type]||'special01'],
+    color: theme[colorLookUp[type] || 'special01'],
   });
 };
 
@@ -375,21 +380,29 @@ const missingStyle = (theme: Theme) => ({
   paddingLeft: '1rem',
 });
 
-const collapsedArrowStyle = (theme: Theme) => ({
-  borderColor: `transparent transparent transparent ${theme.base03}`,
-  borderStyle: 'solid',
-  borderWidth: '4px 0 4px 6px',
-  display: 'inline-block',
-  verticalAlign: 'middle',
-});
+const collapsedArrowStyle = (theme: Theme) => {
+  color.fromString(theme.base00);
+  const themeDark = isDark(color.toRgb());
+  return {
+    borderColor: `transparent transparent transparent ${themeDark ? 'rgba(255,255,255,.2)' : 'rgba(0,0,0,.2)'}`,
+    borderStyle: 'solid',
+    borderWidth: '4px 0 4px 6px',
+    display: 'inline-block',
+    verticalAlign: 'middle',
+  };
+};
 
-const expandedArrowStyle = (theme: Theme) => ({
-  borderColor: `${theme.base03} transparent transparent transparent`,
-  borderStyle: 'solid',
-  borderWidth: '6px 4px 0 4px',
-  display: 'inline-block',
-  verticalAlign: 'middle',
-});
+const expandedArrowStyle = (theme: Theme) => {
+  color.fromString(theme.base00);
+  const themeDark = isDark(color.toRgb());
+  return {
+    borderColor: `${themeDark ? 'rgba(255,255,255,.2)' : 'rgba(0,0,0,.2)'} transparent transparent transparent`,
+    borderStyle: 'solid',
+    borderWidth: '6px 4px 0 4px',
+    display: 'inline-block',
+    verticalAlign: 'middle',
+  };
+};
 
 const sparseArrayHoleStyle = (theme: Theme) => ({
   fontStyle: 'italic',

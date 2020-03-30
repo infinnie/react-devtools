@@ -18,6 +18,9 @@ import decorate from './decorate';
 import styles from './SettingsPane.css';
 import Color from 'element-ui/packages/color-picker/src/color';
 
+const color = new Color();
+const isDark = rgb => Math.round(((rgb.r * 299) + (rgb.g * 587) + (rgb.b * 114)) / 1000) <= 125;
+
 type EventLike = {
   keyCode: number,
   target: Node,
@@ -103,10 +106,10 @@ class SettingsPane extends Component {
             onChange={e => this.props.onChangeSearch(e.target.value)}
             title="Search by React component name or text"
           />
-          <SvgIcon className={styles.SearchIcon} path={Icons.SEARCH} viewBox="0 0 28 28" />
+          <SvgIcon className={styles.SearchIcon} path={Icons.SEARCH} viewBox="0 0 32 32" />
           {!!searchText && (
             <div
-              className={styles.ClearSearchButton}
+              className={[styles.ClearSearchButton].concat(this.props.themeIsDark ? styles['ClearSearchButton--light'] : '').join(' ')}
               onClick={this.cancel.bind(this)}
             >
               &times;
@@ -139,8 +142,6 @@ SettingsPane.propTypes = {
   toggleInspectEnabled: PropTypes.func,
 };
 
-const color = new Color();
-
 const Wrapped = decorate({
   listeners(props) {
     return ['isInspectEnabled', 'isRecording', 'searchText', 'themeStore'];
@@ -148,7 +149,6 @@ const Wrapped = decorate({
   props(store) {
     color.fromString(store.themeStore.theme.base00);
     const rgb = color.toRgb();
-    console.log(rgb);
     return {
       isInspectEnabled: store.isInspectEnabled,
       isRecording: store.isRecording,
@@ -162,7 +162,7 @@ const Wrapped = decorate({
       toggleRecord: () => store.setIsRecording(!store.isRecording),
       themeInvert: store.themeStore.theme.hasInvert,
       // eslint-disable-next-line no-floating-decimal
-      themeIsDark: rgb.r * .3 + rgb.g * .55 + rgb.b * .15 < 128,
+      themeIsDark: isDark(rgb),
     };
   },
 }, SettingsPane);
